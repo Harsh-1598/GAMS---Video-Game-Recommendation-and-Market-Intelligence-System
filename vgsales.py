@@ -237,205 +237,219 @@ print(similarity_matrix.shape)
 import re
 from difflib import SequenceMatcher
 
-# Cache for normalized names and aliases (computed once)
-_normalized_cache = {}
-_aliases_cache = None
-_platform_cache = {}
-
 def normalize_game_name(name):
     """
-    Normalize game names for better matching (with caching)
+    Normalize game names for better matching
     """
     if not isinstance(name, str):
         return ""
     
-    # Check cache first
-    if name in _normalized_cache:
-        return _normalized_cache[name]
-    
     # Convert to lowercase
-    normalized = name.lower().strip()
+    name = name.lower().strip()
     
     # Remove special characters and extra spaces
-    normalized = re.sub(r'[^\w\s]', ' ', normalized)
-    normalized = re.sub(r'\s+', ' ', normalized).strip()
+    name = re.sub(r'[^\w\s]', ' ', name)
+    name = re.sub(r'\s+', ' ', name).strip()
     
-    # Common replacements (optimized with single pass)
-    replacements = [
-        (' iii', ' 3'), (' ii', ' 2'), (' iv', ' 4'), (' v', ' 5'),
-        (' vi', ' 6'), (' vii', ' 7'), (' viii', ' 8'), (' ix', ' 9'), (' x', ' 10'),
-        ('grand theft auto', 'gta'), ('call of duty', 'cod'), ('battlefield', 'bf'),
-        ('assassins creed', 'ac'), ('assassin s creed', 'ac'), ('mortal kombat', 'mk'),
-        ('street fighter', 'sf'), ('final fantasy', 'ff'), ('red dead redemption', 'rdr'),
-        ('elder scrolls', 'tes'), ('and', ''), ('the', ''), ('of', ''), ('a', ''), ('an', ''),
-    ]
-    
-    for old, new in replacements:
-        normalized = normalized.replace(old, new)
-    
-    # Remove extra spaces
-    normalized = re.sub(r'\s+', ' ', normalized).strip()
-    
-    # Cache result
-    _normalized_cache[name] = normalized
-    return normalized
-
-def get_game_aliases():
-    """
-    Get cached aliases dictionary (computed once)
-    """
-    global _aliases_cache
-    if _aliases_cache is not None:
-        return _aliases_cache
-    
-    _aliases_cache = {
-        # GTA Series
-        'gta5': 'grand theft auto v', 'gtav': 'grand theft auto v',
-        'gta 5': 'grand theft auto v', 'gta v': 'grand theft auto v',
-        'gta4': 'grand theft auto iv', 'gtaiv': 'grand theft auto iv',
-        'gta 4': 'grand theft auto iv', 'gta iv': 'grand theft auto iv',
-        'gta3': 'grand theft auto iii', 'gtaiii': 'grand theft auto iii',
-        'gta 3': 'grand theft auto iii', 'gta iii': 'grand theft auto iii',
+    # Common replacements
+    replacements = {
+        # Roman numerals
+        ' iii': ' 3',
+        ' ii': ' 2',
+        ' iv': ' 4',
+        ' v': ' 5',
+        ' vi': ' 6',
+        ' vii': ' 7',
+        ' viii': ' 8',
+        ' ix': ' 9',
+        ' x': ' 10',
         
-        # Assassin's Creed
-        'ac3': 'assassins creed iii', 'ac 3': 'assassins creed iii',
-        'assassins creed 3': 'assassins creed iii', 'assassin s creed 3': 'assassins creed iii',
-        'assassin s creed iii': 'assassins creed iii', 'ac2': 'assassins creed ii',
-        'ac 2': 'assassins creed ii', 'assassins creed 2': 'assassins creed ii',
-        'assassin s creed 2': 'assassins creed ii', 'assassin s creed ii': 'assassins creed ii',
+        # Common abbreviations
+        'grand theft auto': 'gta',
+        'call of duty': 'cod',
+        'battlefield': 'bf',
+        'assassins creed': 'ac',
+        'assassin s creed': 'ac',
+        'mortal kombat': 'mk',
+        'street fighter': 'sf',
+        'final fantasy': 'ff',
+        'red dead redemption': 'rdr',
+        'elder scrolls': 'tes',
         
-        # Call of Duty
-        'cod': 'call of duty', 'cod4': 'call of duty 4 modern warfare',
-        'cod mw': 'call of duty modern warfare', 'cod mw2': 'call of duty modern warfare 2',
-        'cod mw3': 'call of duty modern warfare 3', 'cod bo': 'call of duty black ops',
-        'cod black ops': 'call of duty black ops',
+        # Common words
+        'and': '',
+        'the': '',
+        'of': '',
+        'a': '',
+        'an': '',
     }
     
-    return _aliases_cache
+    for old, new in replacements.items():
+        name = name.replace(old, new)
+    
+    # Remove extra spaces again
+    name = re.sub(r'\s+', ' ', name).strip()
+    
+    return name
+
+def create_game_aliases():
+    """
+    Create a dictionary of common game aliases
+    """
+    aliases = {
+        # GTA Series
+        'gta5': 'grand theft auto v',
+        'gtav': 'grand theft auto v',
+        'gta 5': 'grand theft auto v',
+        'gta v': 'grand theft auto v',
+        'gta4': 'grand theft auto iv',
+        'gtaiv': 'grand theft auto iv',
+        'gta 4': 'grand theft auto iv',
+        'gta iv': 'grand theft auto iv',
+        'gta3': 'grand theft auto iii',
+        'gtaiii': 'grand theft auto iii',
+        'gta 3': 'grand theft auto iii',
+        'gta iii': 'grand theft auto iii',
+        
+        # Assassin's Creed
+        'ac3': 'assassins creed iii',
+        'ac 3': 'assassins creed iii',
+        'assassins creed 3': 'assassins creed iii',
+        'assassin s creed 3': 'assassins creed iii',
+        'assassin s creed iii': 'assassins creed iii',
+        'ac2': 'assassins creed ii',
+        'ac 2': 'assassins creed ii',
+        'assassins creed 2': 'assassins creed ii',
+        'assassin s creed 2': 'assassins creed ii',
+        'assassin s creed ii': 'assassins creed ii',
+        
+        # Call of Duty
+        'cod': 'call of duty',
+        'cod4': 'call of duty 4 modern warfare',
+        'cod mw': 'call of duty modern warfare',
+        'cod mw2': 'call of duty modern warfare 2',
+        'cod mw3': 'call of duty modern warfare 3',
+        'cod bo': 'call of duty black ops',
+        'cod black ops': 'call of duty black ops',
+        
+        # Other popular games
+        'fifa': 'fifa',
+        'nba 2k': 'nba 2k',
+        'madden': 'madden nfl',
+        'pokemon': 'pokemon',
+        'zelda': 'legend of zelda',
+        'mario': 'super mario',
+        'halo': 'halo',
+        'battlefield': 'battlefield',
+        'bf': 'battlefield',
+    }
+    
+    return aliases
 
 def similarity_score(a, b):
-    """Optimized similarity calculation"""
-    if a == b:
-        return 1.0
-    if not a or not b:
-        return 0.0
+    """
+    Calculate similarity between two strings
+    """
     return SequenceMatcher(None, a, b).ratio()
-
-def get_platform_games(data_encoded, platform):
-    """
-    Get cached platform-filtered games to avoid repeated filtering
-    """
-    if platform in _platform_cache:
-        return _platform_cache[platform]
-    
-    filtered_data = data_encoded[data_encoded['Platform'].str.upper() == platform.upper()]
-    _platform_cache[platform] = filtered_data
-    return filtered_data
 
 def find_best_game_match(game_name, data_encoded, platform=None, threshold=0.6):
     """
-    Optimized game matching with early exits and reduced iterations
+    Find the best matching game using fuzzy matching and aliases
     """
+    original_name = game_name
     game_name_lower = game_name.lower().strip()
     
-    # Normalize platform once
+    # Normalize platform (case-insensitive)
     if platform:
         platform = platform.upper().strip()
     
-    # Check aliases first (fastest check)
-    aliases = get_game_aliases()
+    # Check aliases first
+    aliases = create_game_aliases()
     normalized_input = normalize_game_name(game_name)
     
     if normalized_input in aliases:
         game_name_lower = aliases[normalized_input]
     
-    # Determine search dataset once
-    search_data = get_platform_games(data_encoded, platform) if platform else data_encoded
+    # Try exact match first
+    matches = data_encoded[data_encoded['Name'].str.lower() == game_name_lower]
+    if platform:
+        matches = matches[matches['Platform'].str.upper() == platform]
+    if not matches.empty:
+        return matches.index[0], 1.0, matches.iloc[0]['Name']
     
-    # Try exact match first (fastest)
-    exact_matches = search_data[search_data['Name'].str.lower() == game_name_lower]
-    if not exact_matches.empty:
-        idx = exact_matches.index[0]
-        return idx, 1.0, exact_matches.iloc[0]['Name']
-    
-    # Fuzzy matching with optimizations
+    # If no exact match, try fuzzy matching
     best_match_idx = None
-    best_score = threshold  # Start with threshold to avoid unnecessary comparisons
+    best_score = 0
     best_name = ""
     
-    # Pre-compute normalized input variations
-    normalized_no_spaces = game_name_lower.replace(' ', '')
+    # Create a subset to search through (for performance)
+    search_data = data_encoded
+    if platform:
+        search_data = data_encoded[data_encoded['Platform'].str.upper() == platform]
     
-    # Limit search for performance (sample if dataset is very large)
-    search_limit = min(1000, len(search_data))  # Process max 1000 games for fuzzy matching
-    search_sample = search_data.head(search_limit) if len(search_data) > search_limit else search_data
-    
-    for idx, row in search_sample.iterrows():
+    for idx, row in search_data.iterrows():
         game_in_db = row['Name']
         if not isinstance(game_in_db, str):
             continue
+            
+        # Try multiple similarity comparisons
+        scores = [
+            similarity_score(game_name_lower, game_in_db.lower()),
+            similarity_score(normalized_input, normalize_game_name(game_in_db)),
+            similarity_score(game_name_lower.replace(' ', ''), game_in_db.lower().replace(' ', ''))
+        ]
         
-        game_in_db_lower = game_in_db.lower()
+        max_score = max(scores)
         
-        # Quick similarity checks (ordered by speed)
-        # 1. Exact match (already done above)
-        # 2. Contains check (very fast)
-        if game_name_lower in game_in_db_lower or game_in_db_lower in game_name_lower:
-            score = 0.8  # High score for substring matches
-        else:
-            # 3. Fuzzy matching (slower, only if needed)
-            scores = [
-                similarity_score(game_name_lower, game_in_db_lower),
-                similarity_score(normalized_input, normalize_game_name(game_in_db)),
-                similarity_score(normalized_no_spaces, game_in_db_lower.replace(' ', ''))
-            ]
-            score = max(scores)
-        
-        if score > best_score:
-            best_score = score
+        if max_score > best_score and max_score >= threshold:
+            best_score = max_score
             best_match_idx = idx
             best_name = game_in_db
-            
-            # Early exit for very high scores
-            if score > 0.95:
-                break
     
-    return (best_match_idx, best_score, best_name) if best_match_idx is not None else (None, 0, "")
+    if best_match_idx is not None:
+        return best_match_idx, best_score, best_name
+    
+    return None, 0, ""
 
 def recommend_games_filtered(game_name, platform=None, num_recommendations=5, filter_genre=True, filter_publisher=True, filter_decade=True, filter_platform=True):
     """
-    Optimized game recommendation with reduced memory usage and faster processing
+    Recommend games based on similarity with optional filters
+    
+    Args:
+        game_name: Name of the game to get recommendations for
+        platform: Platform filter (optional)
+        num_recommendations: Number of recommendations to return
+        filter_genre: Boolean - whether to filter by genre
+        filter_publisher: Boolean - whether to filter by publisher  
+        filter_decade: Boolean - whether to filter by decade
+        filter_platform: Boolean - whether to filter by platform (default True)
     """
     
-    # Normalize platform input once
+    # Find the game using fuzzy matching
+    # Normalize platform input (case-insensitive)
     normalized_platform = platform.upper().strip() if platform else None
     
-    # Find game with optimized matching
     match_result = find_best_game_match(game_name, data_encoded, normalized_platform)
     
     if match_result[0] is None:
         print("❌ Game not found. Please check name/platform.")
         
-        # Optimized suggestions (limit dataset and iterations)
+        # Show available platforms for debugging
+        if platform:
+            available_platforms = sorted(data_encoded['Platform'].unique())
+            print(f"🔍 Available platforms: {', '.join(available_platforms)}")
+            print(f"🔍 You searched for platform: '{platform}' (normalized to: '{normalized_platform}')")
+        
+        # Suggest similar games
         print("\n💡 Did you mean one of these games?")
         suggestions = []
+        search_data = data_encoded if not normalized_platform else data_encoded[data_encoded['Platform'].str.upper() == normalized_platform]
         
-        # Limit suggestion search for performance
-        search_data = get_platform_games(data_encoded, normalized_platform) if normalized_platform else data_encoded
-        search_limit = min(500, len(search_data))  # Limit suggestion search
-        
-        game_name_lower = game_name.lower()
-        
-        for idx, row in search_data.head(search_limit).iterrows():
+        for idx, row in search_data.iterrows():
             if isinstance(row['Name'], str):
-                # Quick similarity check
-                score = similarity_score(game_name_lower, row['Name'].lower())
-                if score > 0.3:
+                score = similarity_score(game_name.lower(), row['Name'].lower())
+                if score > 0.3:  # Lower threshold for suggestions
                     suggestions.append((row['Name'], row['Platform'], score))
-                    
-                # Limit suggestions collection
-                if len(suggestions) >= 20:  # Collect max 20, show top 5
-                    break
         
         # Show top 5 suggestions
         suggestions.sort(key=lambda x: x[2], reverse=True)
@@ -446,20 +460,20 @@ def recommend_games_filtered(game_name, platform=None, num_recommendations=5, fi
 
     idx, match_score, matched_name = match_result
     
-    # Show match info
+    # Show what game was matched if it's not exact
     if match_score < 1.0:
         print(f"🔍 Found closest match: '{matched_name}' (similarity: {match_score:.2f})")
     
     game_row = data_encoded.loc[idx]
-    
-    # Extract properties once
+
+    # Extract game properties
     genre = game_row['Genre']
     publisher = game_row['Publisher']
     year = game_row['Year']
     name = game_row['Name']
     platform_val = game_row['Platform']
     
-    # Calculate decade once
+    # Calculate decade (handle 'Others' case)
     decade = None
     if year != 'Others':
         try:
@@ -467,60 +481,57 @@ def recommend_games_filtered(game_name, platform=None, num_recommendations=5, fi
         except (ValueError, TypeError):
             decade = None
 
-    # Optimized similarity calculation with early filtering
+    # Get similarity scores for all games
+    similarity_scores = list(enumerate(similarity_matrix[idx]))
+    
+    # Sort by similarity score (highest first) and filter
     filtered_scores = []
-    seen_names = {name.lower()}  # Use set for O(1) lookups
-    
-    # Pre-filter data based on active filters to reduce similarity calculations
-    search_candidates = data_encoded
-    
-    # Apply filters to reduce dataset size before similarity calculation
-    if filter_platform and platform_val:
-        search_candidates = search_candidates[search_candidates['Platform'] == platform_val]
-    if filter_genre:
-        search_candidates = search_candidates[search_candidates['Genre'] == genre]
-    if filter_publisher:
-        search_candidates = search_candidates[search_candidates['Publisher'] == publisher]
-    if filter_decade and decade is not None:
-        decade_mask = search_candidates['Year'] != 'Others'
-        if decade_mask.any():
-            search_candidates = search_candidates[decade_mask]
-            try:
-                decade_values = search_candidates['Year'].astype(float).astype(int)
-                decade_matches = ((decade_values // 10) * 10) == decade
-                search_candidates = search_candidates[decade_matches]
-            except (ValueError, TypeError):
-                pass
-    
-    # Remove self from candidates
-    search_candidates = search_candidates[search_candidates.index != idx]
-    
-    # Calculate similarities only for filtered candidates
-    if not search_candidates.empty:
-        # Vectorized similarity calculation for better performance
-        similarity_scores = []
-        for i in search_candidates.index:
-            score = similarity_matrix[idx, i] if hasattr(similarity_matrix, 'shape') else similarity_matrix[idx][i]
-            similarity_scores.append((i, score))
-        
-        # Sort once and take top results
-        similarity_scores.sort(key=lambda x: x[1], reverse=True)
-        
-        # Filter duplicates and collect results
-        for i, score in similarity_scores:
-            if len(filtered_scores) >= num_recommendations:
-                break
-                
-            row = data_encoded.loc[i]
-            
-            # Skip duplicates (O(1) lookup)
-            if row['Name'].lower() in seen_names:
-                continue
-            
-            seen_names.add(row['Name'].lower())
-            filtered_scores.append((i, score))
+    seen_names = set()
+    seen_names.add(name.lower())  # Add the input game to avoid self-recommendation
 
-    # Display results (unchanged for functionality)
+    for i, score in sorted(similarity_scores, key=lambda x: x[1], reverse=True):
+        # Skip if we have enough recommendations
+        if len(filtered_scores) >= num_recommendations:
+            break
+            
+        # Skip self (double check)
+        if i == idx:
+            continue
+        
+        row = data_encoded.loc[i]
+        
+        # Skip if same name (case insensitive)
+        if row['Name'].lower() in seen_names:
+            continue
+            
+        # Apply platform filter if enabled (default behavior)
+        if filter_platform and platform_val and row['Platform'] != platform_val:
+            continue
+            
+        # Apply genre filter if enabled
+        if filter_genre and row['Genre'] != genre:
+            continue
+            
+        # Apply publisher filter if enabled
+        if filter_publisher and row['Publisher'] != publisher:
+            continue
+            
+        # Apply decade filter if enabled
+        if filter_decade and decade is not None:
+            if row['Year'] == 'Others':
+                continue
+            try:
+                row_decade = (int(float(row['Year'])) // 10) * 10
+                if row_decade != decade:
+                    continue
+            except (ValueError, TypeError):
+                continue
+        
+        # Add to results
+        seen_names.add(row['Name'].lower())
+        filtered_scores.append((i, score))
+
+    # Display results
     print(f"\n🎮 Top {len(filtered_scores)} Recommendations for '{game_name}' [{platform or 'Any'}]:")
     
     # Show active filters
@@ -549,21 +560,26 @@ def recommend_games_filtered(game_name, platform=None, num_recommendations=5, fi
         rec = data_encoded.loc[i]
         print(f"{rank}. {rec['Name']} ({rec['Platform']}) | Genre: {rec['Genre']} | Year: {rec['Year']} | Score: {score:.2f}")
 
+
+# Example usage with corrected boolean parameters:
+# recommend_games_filtered('Grand Theft Auto V', 'PS', 7, filter_genre=False, filter_publisher=False)
+
+# Alternative function call that handles string inputs (for backward compatibility)
 def recommend_games_filtered_safe(game_name, platform=None, num_recommendations=5, filter_genre=True, filter_publisher=True, filter_decade=True, filter_platform=True):
     """
-    Optimized safe wrapper with input validation
+    Safe wrapper that converts string inputs to proper types
     """
-    # Convert inputs efficiently
-    filters = [filter_genre, filter_publisher, filter_decade, filter_platform]
-    converted_filters = []
+    # Convert string booleans to actual booleans
+    if isinstance(filter_genre, str):
+        filter_genre = filter_genre.lower() == 'true'
+    if isinstance(filter_publisher, str):
+        filter_publisher = filter_publisher.lower() == 'true'
+    if isinstance(filter_decade, str):
+        filter_decade = filter_decade.lower() == 'true'
+    if isinstance(filter_platform, str):
+        filter_platform = filter_platform.lower() == 'true'
     
-    for f in filters:
-        if isinstance(f, str):
-            converted_filters.append(f.lower() == 'true')
-        else:
-            converted_filters.append(bool(f))
-    
-    # Convert number
+    # Convert string numbers to integers
     if isinstance(num_recommendations, str):
         try:
             num_recommendations = int(num_recommendations)
@@ -571,19 +587,24 @@ def recommend_games_filtered_safe(game_name, platform=None, num_recommendations=
             print(f"⚠️ Invalid number of recommendations: {num_recommendations}. Using default value of 5.")
             num_recommendations = 5
     
-    # Handle platform
+    # Handle empty platform strings
     if platform == '' or platform == 'none':
         platform = None
     
-    return recommend_games_filtered(game_name, platform, num_recommendations, *converted_filters)
+    return recommend_games_filtered(game_name, platform, num_recommendations, filter_genre, filter_publisher, filter_decade, filter_platform)
 
+# Example of how to handle user input properly:
 def get_user_recommendations():
     """
-    Optimized user input function
+    Function to get user input and call recommendations safely
     """
     game_name = input("Enter the name of the Game: ").strip()
     platform = input("Enter the platform of the Game (or press Enter for any): ").strip()
-    platform = platform.upper() if platform else None
+    if not platform:
+        platform = None
+    else:
+        # Normalize platform input (case-insensitive)
+        platform = platform.upper()
     
     try:
         num_recommendations = int(input("Enter the no. of recommendations: "))
@@ -591,22 +612,11 @@ def get_user_recommendations():
         print("Invalid input for recommendations. Using default value of 5.")
         num_recommendations = 5
     
-    # Batch input processing
-    filter_inputs = [
-        input("Enter true or false to filter genre: ").strip().lower() == 'true',
-        input("Enter true or false to filter publisher: ").strip().lower() == 'true',
-        input("Enter true or false to filter decade: ").strip().lower() == 'true',
-        input("Enter true or false to filter platform: ").strip().lower() == 'true'
-    ]
+    filter_genre = input("Enter true or false to filter genre: ").strip().lower() == 'true'
+    filter_publisher = input("Enter true or false to filter publisher: ").strip().lower() == 'true'
+    filter_decade = input("Enter true or false to filter decade: ").strip().lower() == 'true'
+    filter_platform = input("Enter true or false to filter platform: ").strip().lower() == 'true'
     
-    recommend_games_filtered(game_name, platform, num_recommendations, *filter_inputs)
-
-# Clear caches function (optional - for memory management)
-def clear_caches():
-    """Clear all caches to free memory"""
-    global _normalized_cache, _aliases_cache, _platform_cache
-    _normalized_cache.clear()
-    _aliases_cache = None
-    _platform_cache.clear()
+    recommend_games_filtered(game_name, platform, num_recommendations, filter_genre, filter_publisher, filter_decade, filter_platform)
 
 get_user_recommendations()
