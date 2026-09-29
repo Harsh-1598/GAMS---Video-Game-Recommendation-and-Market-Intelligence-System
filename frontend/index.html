@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GAMS | Game Recommendation System</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="page-header">
+      <p class="eyebrow">GAMS | Game discovery lab</p>
+      <h1>Find your next game</h1>
+      <p class="lede">Start from a game you played, or browse the strongest matches for a genre, publisher, or decade.</p>
+    </header>
+
+    <section class="workspace">
+      <form id="recommendation-form" class="form-panel">
+        <label for="played-game">Played game</label>
+        <input id="played-game" name="played-game" placeholder="Optional: GTA San Andreas" autocomplete="off">
+
+        <label for="played-platform">Played on</label>
+        <select id="played-platform" name="played-platform"></select>
+
+        <fieldset>
+          <legend>Platform preference</legend>
+          <label class="choice">
+            <input type="radio" name="platform-mode" value="any" checked>
+            <span>Any platform</span>
+          </label>
+          <label class="choice">
+            <input type="radio" name="platform-mode" value="same">
+            <span>Use one platform</span>
+          </label>
+        </fieldset>
+
+        <label for="selected-platform">Preferred platform</label>
+        <select id="selected-platform" name="selected-platform" disabled></select>
+
+        <label for="genre">Genre</label>
+        <select id="genre" name="genre"></select>
+
+        <label for="publisher">Publisher</label>
+        <input id="publisher" name="publisher" list="publisher-options" placeholder="Any publisher" autocomplete="off">
+        <datalist id="publisher-options"></datalist>
+
+        <label for="release-decade">Release decade</label>
+        <select id="release-decade" name="release-decade"></select>
+
+        <label for="limit">Number of recommendations</label>
+        <input id="limit" name="limit" type="number" min="1" max="20" value="10">
+
+        <button type="submit">Recommend games</button>
+        <p id="form-status" class="status" role="status"></p>
+      </form>
+
+      <section class="results-panel" aria-live="polite">
+        <div class="results-header">
+          <div>
+            <p class="eyebrow">Results</p>
+            <h2 id="results-title">Your recommendations</h2>
+          </div>
+          <span id="result-count" class="count"></span>
+        </div>
+        <div id="results" class="results-list">
+          <p class="empty-state">Enter a game or choose a filter to get started.</p>
+        </div>
+      </section>
+    </section>
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>
