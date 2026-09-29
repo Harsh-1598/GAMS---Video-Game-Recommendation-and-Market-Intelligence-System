@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+import joblib
 import numpy as np
 import pandas as pd
 from sklearn.compose import ColumnTransformer
@@ -19,8 +20,11 @@ from .aliases import normalize_platform, resolve_title
 
 
 class GameRecommendationEngine:
-    def __init__(self, data_path: str | Path):
+    def __init__(self, data_path: str | Path, model_path: str | Path | None = None):
         self.data = self._load_and_clean(data_path)
+        self.model_path = Path(model_path) if model_path else (
+            Path(__file__).resolve().parents[1] / "models" / "gams_model.joblib"
+        )
         self.model_features = [
             "Platform", "Genre", "Publisher", "Year_For_Feature", "Release_Decade"
         ]
@@ -31,7 +35,35 @@ class GameRecommendationEngine:
         self.model = None
         self.model_name = ""
         self.metrics = {}
-        self._train_and_tune()
+        if not self._load_model():
+            self._train_and_tune()
+
+    def _load_model(self) -> bool:
+        if not self.model_path.exists():
+            return False
+        try:
+            bundle = joblib.load(self.model_path)
+            if bundle.get("model_features") != self.model_features:
+                return False
+            self.model = bundle["model"]
+            self.model_name = bundle["model_name"]
+            self.metrics = bundle["metrics"]
+            return True
+        except (OSError, KeyError, ValueError, EOFError):
+            return False
+
+    def _save_model(self) -> None:
+        self.model_path.parent.mkdir(parents=True, exist_ok=True)
+        joblib.dump(
+            {
+                "model": self.model,
+                "model_name": self.model_name,
+                "metrics": self.metrics,
+                "model_features": self.model_features,
+            },
+            self.model_path,
+            compress=3,
+        )
 
     @staticmethod
     def _load_and_clean(data_path: str | Path) -> pd.DataFrame:
@@ -143,6 +175,7 @@ class GameRecommendationEngine:
                     "model__min_samples_leaf": 2,
                 },
             }
+            self._save_model()
             return
 
         candidates = [
@@ -194,6 +227,7 @@ class GameRecommendationEngine:
             "cv_rmse": round(float(-best_search.best_score_), 4),
             "best_params": best_search.best_params_,
         }
+        self._save_model()
 
     def options(self) -> dict[str, list[str]]:
         return {

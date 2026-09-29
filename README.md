@@ -22,9 +22,10 @@ python -m uvicorn backend.main:app --reload
 
 Open `http://127.0.0.1:8000` in a browser.
 
-The model search runs once when the backend starts. It compares tuned Random
-Forest and Extra Trees regressors with cross-validation, then keeps the better
-candidate. The API exposes:
+The model search is used to select the best configuration, and the resulting
+pipeline is stored in `models/gams_model.joblib`. The backend loads that file
+when it starts instead of retraining the model. If the file is missing, local
+startup falls back to training and tuning the candidate models. The API exposes:
 
 - `GET /api/health`
 - `GET /api/options`
@@ -34,5 +35,6 @@ The notebook remains available for exploration and model analysis. The web
 frontend is served by FastAPI, so no separate frontend server is needed.
 
 For Vercel, the API entrypoint is configured in `pyproject.toml`. Vercel uses
-the locally selected Random Forest parameters without repeating cross-validation
-on every serverless cold start.
+the committed Joblib pipeline without repeating cross-validation on every
+serverless cold start. Push `pyproject.toml` and the `models` directory to
+GitHub before deploying.

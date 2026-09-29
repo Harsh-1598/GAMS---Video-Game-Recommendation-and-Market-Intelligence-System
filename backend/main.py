@@ -14,7 +14,10 @@ from .engine import GameRecommendationEngine
 
 
 ROOT = Path(__file__).resolve().parents[1]
-engine = GameRecommendationEngine(ROOT / "vgsales.csv")
+engine = GameRecommendationEngine(
+    ROOT / "vgsales.csv",
+    ROOT / "models" / "gams_model.joblib",
+)
 
 app = FastAPI(title="GAMS", version="1.0.0")
 app.add_middleware(
