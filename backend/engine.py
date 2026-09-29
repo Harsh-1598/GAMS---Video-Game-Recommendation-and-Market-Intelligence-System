@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import numpy as np
@@ -115,6 +116,34 @@ class GameRecommendationEngine:
         X_test = self.data.loc[test_index, self.model_features]
         y_train = self.data.loc[train_index, "Log_Global_Sales"]
         y_test = self.data.loc[test_index, "Global_Sales"]
+
+        # Vercel should start from the parameters selected during local tuning.
+        # Running cross-validation during every serverless cold start is too slow.
+        if os.getenv("VERCEL") == "1":
+            self.model = self._pipeline(
+                RandomForestRegressor(
+                    n_estimators=150,
+                    max_depth=35,
+                    min_samples_leaf=2,
+                    random_state=42,
+                    n_jobs=-1,
+                )
+            )
+            self.model.fit(X_train, y_train)
+            predictions = np.maximum(np.expm1(self.model.predict(X_test)), 0)
+            self.model_name = "RandomForestRegressor"
+            self.metrics = {
+                "mae": round(float(mean_absolute_error(y_test, predictions)), 4),
+                "rmse": round(float(np.sqrt(mean_squared_error(y_test, predictions))), 4),
+                "r2": round(float(r2_score(y_test, predictions)), 4),
+                "cv_rmse": None,
+                "best_params": {
+                    "model__n_estimators": 150,
+                    "model__max_depth": 35,
+                    "model__min_samples_leaf": 2,
+                },
+            }
+            return
 
         candidates = [
             (

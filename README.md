@@ -32,3 +32,7 @@ candidate. The API exposes:
 
 The notebook remains available for exploration and model analysis. The web
 frontend is served by FastAPI, so no separate frontend server is needed.
+
+For Vercel, the API entrypoint is configured in `pyproject.toml`. Vercel uses
+the locally selected Random Forest parameters without repeating cross-validation
+on every serverless cold start.
