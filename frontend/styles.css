@@ -3,8 +3,10 @@
   --ink: #f4f7fb;
   --muted: #aab7c8;
   --line: rgba(196, 214, 236, 0.18);
-  --surface: rgba(12, 24, 43, 0.94);
+  --surface: rgba(10, 23, 42, 0.95);
+  --surface-soft: rgba(20, 39, 65, 0.92);
   --accent: #50d5ff;
+  --accent-soft: rgba(80, 213, 255, 0.16);
   --danger: #ff9c9c;
 }
 
@@ -22,26 +24,31 @@ body::before {
   position: fixed;
   inset: 0;
   z-index: -1;
-  background: rgba(5, 12, 24, 0.78);
+  background: rgba(4, 11, 22, 0.8);
   content: "";
 }
 
-.shell { max-width: 1160px; margin: 0 auto; padding: 56px 24px 72px; }
-.page-header { max-width: 760px; margin-bottom: 34px; }
+.shell { max-width: 1160px; margin: 0 auto; padding: 28px 24px 72px; }
+.site-header { display: flex; align-items: center; gap: 14px; border-bottom: 1px solid var(--line); padding: 4px 0 22px; }
+.brand-mark { display: grid; width: 48px; height: 48px; place-items: center; border: 1px solid var(--accent); border-radius: 8px; background: var(--accent); color: #061421; font-size: 1.65rem; font-weight: 900; }
+.brand-name { margin: 0; color: var(--ink); font-size: 1.55rem; font-weight: 900; letter-spacing: 0.08em; line-height: 1; }
+.brand-subtitle { margin: 5px 0 0; color: var(--muted); font-size: 0.78rem; }
+.brand-status { margin-left: auto; border: 1px solid rgba(80, 213, 255, 0.45); border-radius: 999px; padding: 5px 10px; color: var(--accent); font-size: 0.73rem; font-weight: 700; }
+.page-header { max-width: 760px; margin: 48px 0 34px; }
 .eyebrow { margin: 0 0 8px; color: var(--accent); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
 h1, h2, p { margin-top: 0; }
 h1 { margin-bottom: 12px; font-size: clamp(2.2rem, 5vw, 4rem); line-height: 1; letter-spacing: 0; }
 h2 { margin-bottom: 0; font-size: 1.35rem; }
 .lede { max-width: 650px; color: #d2ddea; font-size: 1.06rem; }
 .workspace { display: grid; grid-template-columns: minmax(280px, 350px) 1fr; gap: 22px; align-items: start; }
-.form-panel, .results-panel { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 22px 60px rgba(0, 0, 0, 0.25); }
+.form-panel, .results-panel { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 22px 60px rgba(0, 0, 0, 0.28); }
 .form-panel { display: grid; gap: 9px; padding: 24px; }
 .results-panel { min-height: 530px; padding: 26px; }
 label, legend { font-weight: 700; font-size: 0.86rem; }
 input, select, button { width: 100%; min-height: 43px; border: 1px solid #a8b8ca; border-radius: 5px; padding: 9px 11px; font: inherit; }
 input, select { background: #f7fafc; color: #122033; }
-input:focus, select:focus { outline: 3px solid rgba(80, 213, 255, 0.28); border-color: var(--accent); }
-fieldset { display: grid; gap: 8px; border: 0; padding: 10px 0 0; margin: 4px 0 0; }
+input:focus, select:focus { outline: 3px solid var(--accent-soft); border-color: var(--accent); }
+fieldset { display: grid; gap: 8px; border: 0; border-top: 1px solid var(--line); padding: 15px 0 0; margin: 8px 0 0; }
 .choice { display: flex; gap: 9px; align-items: center; color: #dbe7f5; font-weight: 450; }
 .choice input { width: auto; min-height: 0; accent-color: var(--accent); }
 button { margin-top: 10px; border-color: var(--accent); background: var(--accent); color: #061421; cursor: pointer; font-weight: 800; }
@@ -55,13 +62,16 @@ button:hover { background: #91e6ff; }
 .rank { color: var(--accent); font-weight: 800; }
 .result h3 { margin: 0; font-size: 1rem; }
 .meta { margin: 3px 0 0; color: var(--muted); font-size: 0.86rem; }
-.score { min-width: 118px; text-align: right; color: var(--muted); font-size: 0.75rem; }
+.score { min-width: 150px; text-align: right; color: var(--muted); font-size: 0.75rem; }
 .score strong { display: block; color: var(--accent); font-size: 1.12rem; }
 .score span { display: block; margin-top: 2px; color: #d4deeb; }
 .empty-state { color: var(--muted); margin: 0; padding: 32px 0; }
 
 @media (max-width: 760px) {
-  .shell { padding: 34px 16px 48px; }
+  .shell { padding: 22px 16px 48px; }
+  .brand-subtitle { max-width: 210px; line-height: 1.25; }
+  .brand-status { display: none; }
+  .page-header { margin-top: 36px; }
   .workspace { grid-template-columns: 1fr; }
   .results-panel { min-height: auto; }
   .result { grid-template-columns: 28px 1fr; }

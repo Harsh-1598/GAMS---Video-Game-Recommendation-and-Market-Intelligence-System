@@ -32,8 +32,17 @@ async function loadOptions() {
   });
 }
 
+function formatIndianSales(millions) {
+  const value = Number(millions);
+  if (!Number.isFinite(value)) return '';
+  const lakhs = value * 10;
+  if (lakhs >= 100) return `${(lakhs / 100).toFixed(2)} crore predicted sales`;
+  return `${lakhs.toFixed(lakhs >= 10 ? 1 : 2)} lakh predicted sales`;
+}
+
 function renderResults(payload) {
   const items = payload.results || [];
+  const showScores = Boolean(payload.played_game && payload.played_platform);
   resultTitle.textContent = payload.played_game
     ? `Recommendations for ${payload.played_game}`
     : 'Top games for your filters';
@@ -49,13 +58,16 @@ function renderResults(payload) {
     const article = document.createElement('article');
     article.className = 'result';
     const year = item.Year ?? 'Unknown year';
+    const score = showScores
+      ? `<div class="score"><strong>${Number(item.Similarity_Score).toFixed(0)}%</strong>match score<span>${formatIndianSales(item.Predicted_Global_Sales)}</span></div>`
+      : '';
     article.innerHTML = `
       <div class="rank">${index + 1}</div>
       <div>
         <h3>${item.Name}</h3>
         <p class="meta">${item.Platform} | ${item.Genre} | ${item.Publisher} | ${year}</p>
       </div>
-      <div class="score"><strong>${Number(item.Similarity_Score).toFixed(0)}%</strong>match score<span>${Number(item.Predicted_Global_Sales).toFixed(2)}M predicted</span></div>
+      ${score}
     `;
     results.append(article);
   });
